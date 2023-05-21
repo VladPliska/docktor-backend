@@ -6,6 +6,9 @@ import { UsersModule } from './users/users.module';
 import { ApointmentsModule } from './apointments/apointments.module';
 import { ConsultationModule } from './consultation/consultation.module';
 import { ServicesModule } from './services/services.module';
+import { AuthModule } from './auth/auth.module';
+import { CryptoModule } from './crypto/crypto.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -24,6 +27,9 @@ import { ServicesModule } from './services/services.module';
     ApointmentsModule,
     ConsultationModule,
     ServicesModule,
+    AuthModule,
+    CryptoModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

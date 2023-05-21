@@ -21,22 +21,22 @@ export class User {
   @Column({ type: 'varchar', name: 'email' })
   email: string;
 
-  @Column({ type: 'varchar', name: 'phone_number' })
+  @Column({ type: 'varchar', name: 'phone_number', nullable: true })
   phoneNumber: string;
 
   @Column({ type: 'varchar', name: 'password' })
   password: string;
 
-  @Column()
+  @Column({ nullable: true })
   avatar: string;
 
-  @Column()
+  @Column({ nullable: true, default: false })
   verification: boolean;
 
-  @Column()
+  @Column({ nullable: true })
   verificationCode: number;
 
-  @Column()
+  @Column({ nullable: false })
   role: string;
 
   @CreateDateColumn()

@@ -1,5 +1,8 @@
 {
+  "sourceRoot": "src",
   "compilerOptions": {
+    "assets": ["**/*.hbs"],
+    "watchAssets": true,
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
@@ -16,6 +19,6 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
   }
 }
