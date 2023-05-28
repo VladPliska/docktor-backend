@@ -9,6 +9,8 @@ import {
   Req,
   UseGuards,
   Query,
+  HttpStatus,
+  HttpCode,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -16,6 +18,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { GetUsersDto } from './dto/get-users.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { CreateDoctor } from './dto/add-doctor-details.dto';
 
 @Controller('users')
 export class UsersController {
@@ -27,6 +30,12 @@ export class UsersController {
     return this.usersService.createUser(createUserDto, req.user);
   }
 
+  @Post('add-doctor')
+  @UseGuards(AuthGuard)
+  createDoctor(@Body() dto: CreateDoctor, @Req() req) {
+    return this.usersService.createDoctor(dto, req.user);
+  }
+
   @Patch(':userId/change-password/')
   async changePassword(
     @Body() dto: ChangePasswordDto,
@@ -35,9 +44,25 @@ export class UsersController {
     return this.usersService.changePassword(userId, dto);
   }
 
+  @Patch('/doctor/:userId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(AuthGuard)
+  async updateDoctor(
+    @Body() dto: any,
+    @Req() req,
+    @Param('userId') userId: string,
+  ) {
+    return await this.usersService.updateDoctor(dto, req.user, userId);
+  }
+
+  @Get('find-by-email')
+  async findUserByEmail(@Query('email') email: string) {
+    return await this.usersService.getUserByEmail(email);
+  }
+
   @Get()
-  findAll(@Query() { role }: GetUsersDto) {
-    return this.usersService.findAll(role);
+  findAll(@Query() { role, search }: GetUsersDto) {
+    return this.usersService.findAll(role, search);
   }
 
   @Get(':id')

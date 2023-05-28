@@ -22,6 +22,7 @@ import { MailModule } from './mail/mail.module';
       autoLoadEntities: true,
       entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: true,
+      logger: "simple-console"
     }),
     UsersModule,
     ApointmentsModule,

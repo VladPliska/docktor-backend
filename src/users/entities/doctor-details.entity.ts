@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from './user.entity';
 
 @Entity({ name: 'doctor-details' })
 export class DoctorDetailsEntity {
@@ -24,7 +25,4 @@ export class DoctorDetailsEntity {
 
   @Column()
   credo: string;
-
-  @Column()
-  userId: string;
 }

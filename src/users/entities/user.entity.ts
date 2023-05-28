@@ -2,14 +2,17 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { DoctorDetailsEntity } from './doctor-details.entity';
 
 @Entity({
   name: 'users',
 })
 export class User {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn('uuid', {name: "userId"})
   userId: string;
 
   @Column({ type: 'varchar', name: 'first_name' })
@@ -41,6 +44,10 @@ export class User {
 
   @CreateDateColumn()
   createdAt: Date;
+  
+  @OneToOne(() => DoctorDetailsEntity, {cascade: true, nullable: true, eager: true})
+  @JoinColumn()
+  doctorDetails: DoctorDetailsEntity;
 }
 
 export enum UserRole {
