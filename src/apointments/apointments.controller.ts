@@ -1,34 +1,26 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ApointmentsService } from './apointments.service';
-import { CreateApointmentDto } from './dto/create-apointment.dto';
-import { UpdateApointmentDto } from './dto/update-apointment.dto';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { AppointmentsService } from './apointments.service';
+import { CreateAppointmentDto } from './dto/create-apointment.dto';
+import { GetAppointmentByDate } from './dto/get-appointment-by-date';
 
-@Controller('apointments')
-export class ApointmentsController {
-  constructor(private readonly apointmentsService: ApointmentsService) {}
+@Controller('appointments')
+export class AppointmentsController {
+  constructor(private readonly appointmentsService: AppointmentsService) {}
 
   @Post()
-  create(@Body() createApointmentDto: CreateApointmentDto) {
-    return this.apointmentsService.create(createApointmentDto);
+  async create(@Body() dto: CreateAppointmentDto) {
+    return this.appointmentsService.createAppointment(dto);
   }
 
+  @Get('/free-hours')
+  async getFreeHours(
+    @Query() dto: GetAppointmentByDate,
+  ) {
+    return this.appointmentsService.getFreeHoursForDoctorByDate(dto);
+  }
+  
   @Get()
-  findAll() {
-    return this.apointmentsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.apointmentsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateApointmentDto: UpdateApointmentDto) {
-    return this.apointmentsService.update(+id, updateApointmentDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.apointmentsService.remove(+id);
+  async find(){
+    return this.appointmentsService.find()
   }
 }

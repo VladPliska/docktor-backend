@@ -5,17 +5,20 @@ export class AppointmentsEntity {
   @PrimaryGeneratedColumn('uuid', { name: 'appointment_id' })
   appointmentId: string;
 
-  @Column({ name: 'date' })
-  date: Date;
+  @Column({type: 'varchar', nullable: false })
+  date: string;
+  
+  @Column({type: 'varchar', nullable: false})
+  time: string;
 
-  @Column({ name: 'client_id' })
+  @Column({ name: 'client_id' }) 
   clientId: string;
 
   @Column({ name: 'doctor_id' })
   doctorId: string;
 
-  @Column()
-  price: string;
+  @Column({nullable: true})
+  price: number; 
 
   @Column()
   description: string;

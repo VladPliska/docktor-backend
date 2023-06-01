@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
-import { ApointmentsModule } from './apointments/apointments.module';
+import { AppointmentsModule } from './apointments/apointments.module';
 import { ConsultationModule } from './consultation/consultation.module';
 import { ServicesModule } from './services/services.module';
 import { AuthModule } from './auth/auth.module';
@@ -22,10 +22,10 @@ import { MailModule } from './mail/mail.module';
       autoLoadEntities: true,
       entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: true,
-      logger: "simple-console"
+      logging: "all"
     }),
     UsersModule,
-    ApointmentsModule,
+    AppointmentsModule,
     ConsultationModule,
     ServicesModule,
     AuthModule,

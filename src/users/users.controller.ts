@@ -19,6 +19,7 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { GetUsersDto } from './dto/get-users.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateDoctor } from './dto/add-doctor-details.dto';
+import { OnlyAdminGuard } from './guards/only-admin.guard';
 
 @Controller('users')
 export class UsersController {
@@ -27,7 +28,7 @@ export class UsersController {
   @Post('add-user')
   @UseGuards(AuthGuard)
   createUser(@Body() createUserDto: CreateUserDto, @Req() req) {
-    return this.usersService.createUser(createUserDto, req.user);
+    return this.usersService.createUser(createUserDto);
   }
 
   @Post('add-doctor')
@@ -56,8 +57,11 @@ export class UsersController {
   }
 
   @Get('find-by-email')
-  async findUserByEmail(@Query('email') email: string) {
-    return await this.usersService.getUserByEmail(email);
+  async findUserByEmail(
+    @Query('email') email: string,
+    @Query('id') id: string,
+  ) {
+    return await this.usersService.getUserByEmail(email, id);
   }
 
   @Get()
@@ -70,6 +74,11 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
+  @Get('/get-by-phone/:phone')
+  findUserByPhone(@Param('phone') phone: string) {
+    return this.usersService.findUserByPhone(phone)
+  }
+
   @Patch(':userId')
   update(
     @Param('userId') userId: string,
@@ -79,7 +88,10 @@ export class UsersController {
   }
 
   @Delete(':userId')
+  @UseGuards(AuthGuard, OnlyAdminGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('userId') userId: string) {
-    return this.usersService.remove(userId);
+    return this.usersService.deactivateUser(userId);
   }
 }
+

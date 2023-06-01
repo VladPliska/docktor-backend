@@ -8,6 +8,13 @@ import {
 } from 'typeorm';
 import { DoctorDetailsEntity } from './doctor-details.entity';
 
+
+
+export enum Status {
+  active = 'active',
+  deleted = 'deleted',
+}
+
 @Entity({
   name: 'users',
 })
@@ -41,6 +48,9 @@ export class User {
 
   @Column({ nullable: false })
   role: string;
+  
+  @Column({default: Status.active})
+  status: string
 
   @CreateDateColumn()
   createdAt: Date;
@@ -55,3 +65,4 @@ export enum UserRole {
   doctor = 'doctor',
   admin = 'admin',
 }
+
