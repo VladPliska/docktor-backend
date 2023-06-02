@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppointmentsEntity } from './entities/apointment.entity';
-import { Repository } from 'typeorm';
+import { Repository, Between, In } from 'typeorm';
 import { CreateAppointmentDto } from './dto/create-apointment.dto';
 import { GetAppointmentByDate } from './dto/get-appointment-by-date';
 import * as moment from 'moment';
@@ -77,8 +77,31 @@ export class AppointmentsService {
     return await this.repository.save(appointmentPayload);
   }
   
-  async find() {
-    const appointments = await this.repository.find();
+  async find(options: any) {
+    const filterObject = {};
+    
+    if(options.today) {
+      const today = moment().format('DD-MM-YYYY');
+      filterObject['date'] = today;
+    }
+    
+    if(options.doctorId){
+      filterObject['doctorId'] = options.doctorId;
+    }
+    
+    if(options.startDate){
+      filterObject['date'] = Between(options.startDate, options.endDate)
+    }
+    
+    if(options.userName) {
+      console.log(options)
+      const users = await this.userService.findAll(UserRole.patient, options.userName);
+      
+      const clientIds = users.map(u => u.userId);
+      filterObject['clientId'] = In(clientIds)
+    }
+    
+    const appointments = await this.repository.find({where: filterObject});
     
     const mapAppointments = await Promise.all(appointments.map(async (a) => {
       const [client, doctor] = await Promise.all([
@@ -90,6 +113,16 @@ export class AppointmentsService {
     }));
     
     return mapAppointments;
+  }
+  
+  async getToday() {
+    const today = moment().format('dd-MM-YYYY');
+    
+    return this.repository.find({
+      where: {
+        date: today
+      }
+    })
   }
     
 }

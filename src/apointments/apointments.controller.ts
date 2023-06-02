@@ -20,7 +20,7 @@ export class AppointmentsController {
   }
   
   @Get()
-  async find(){
-    return this.appointmentsService.find()
+  async find(@Query() dto: any){
+    return this.appointmentsService.find(dto)
   }
 }

@@ -6,14 +6,11 @@ export class Service {
   id: string;
 
   @Column()
-  price: string;
+  price: number;
 
   @Column()
   name: string;
 
   @Column()
   description: string;
-
-  @Column()
-  doctorId: string;
 }

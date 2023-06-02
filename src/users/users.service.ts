@@ -48,20 +48,26 @@ export class UsersService {
   }
 
   async findAll(role: string, search) {
-    const findObject = {
+    let findObject = {
       role,
-    };
+      status: Status.active,
+    } as any;
 
-    if (search) {
-      findObject['firstName'] = ILike(`%${search}%`);
-      findObject['lastName'] = ILike(`%${search}%`);
+    if (search) {      
+      findObject = [
+        {
+          ...findObject,
+          firstName: ILike(`%${search}%`),
+        },
+        {
+          ...findObject,
+          lastName: ILike(`%${search}%`),
+        },
+      ];
     }
 
     const users = await this.userRepository.find({
-      where: {
-        ...findObject,
-        status: Status.active,
-      },
+      where: findObject,
       relations: ['doctorDetails'],
     });
 
@@ -147,9 +153,9 @@ export class UsersService {
   }
 
   async createDoctor(dto: CreateDoctor, user: any): Promise<void> {
-    if (user.role === UserRole.doctor && dto.role === UserRole.doctor) {
-      throw new HttpException('Лікар не може додати лікара', 400);
-    }
+    // if (user.role === UserRole.doctor && dto.role === UserRole.doctor) {
+    //   throw new HttpException('Лікар не може додати лікара', 400);
+    // }
 
     const generatedPassword = 1111; //Math.floor(Math.random() * 10000);
     const hashPassword = await this.cryptoService.createHash(
