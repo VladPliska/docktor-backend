@@ -9,9 +9,15 @@ import { ServicesModule } from './services/services.module';
 import { AuthModule } from './auth/auth.module';
 import { CryptoModule } from './crypto/crypto.module';
 import { MailModule } from './mail/mail.module';
+import { ImageModule } from './image/image.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: `.env`,
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
@@ -22,7 +28,7 @@ import { MailModule } from './mail/mail.module';
       autoLoadEntities: true,
       entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: true,
-      logging: "all"
+      logging: 'all',
     }),
     UsersModule,
     AppointmentsModule,
@@ -31,6 +37,7 @@ import { MailModule } from './mail/mail.module';
     AuthModule,
     CryptoModule,
     MailModule,
+    ImageModule,
   ],
   controllers: [AppController],
   providers: [AppService],
