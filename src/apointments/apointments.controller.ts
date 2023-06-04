@@ -23,4 +23,16 @@ export class AppointmentsController {
   async find(@Query() dto: any){
     return this.appointmentsService.find(dto)
   }
+  
+  @Get('/by-user')
+  async getByUser(@Query() {role, userId}: any) {
+    return this.appointmentsService.getVisitsByUser({role, userId})
+  }
+  
+  @Patch(':id')
+  async update(
+    @Param() {id}: any,
+    @Body() dto: any) {
+    return this.appointmentsService.update(id,dto)
+  }
 }

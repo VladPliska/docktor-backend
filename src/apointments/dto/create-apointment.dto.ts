@@ -1,4 +1,5 @@
-import { IsDateString, IsEmail, IsInt, IsString } from "class-validator";
+import { IsArray, IsDateString, IsEmail, IsInt, IsString } from "class-validator";
+import { Service } from "src/services/entities/service.entity";
 
 export class CreateAppointmentDto {
   @IsString()
@@ -24,4 +25,7 @@ export class CreateAppointmentDto {
   
   @IsEmail()
   email: string;
+  
+  @IsArray()
+  services: Service[]
 }

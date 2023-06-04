@@ -1,6 +1,11 @@
 import { Service } from 'src/services/entities/service.entity';
 import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 
+export enum AppointmentStatus {
+  scheduled = 'scheduled',
+  finished = 'finished',
+}
+
 @Entity({ name: 'appointments' })
 export class AppointmentsEntity {
   @PrimaryGeneratedColumn('uuid', { name: 'appointment_id' })
@@ -24,10 +29,11 @@ export class AppointmentsEntity {
   @Column()
   description: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: AppointmentStatus.scheduled})
   status: string;
 
-  @ManyToMany(() => Service, {nullable: true})
+  @ManyToMany(() => Service, { nullable: true, cascade: true, eager: true })
   @JoinTable()
   services: Service[];
 }
+

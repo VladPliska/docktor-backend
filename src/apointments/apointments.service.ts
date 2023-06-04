@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppointmentsEntity } from './entities/apointment.entity';
 import { Repository, Between, In } from 'typeorm';
@@ -7,8 +7,9 @@ import { GetAppointmentByDate } from './dto/get-appointment-by-date';
 import * as moment from 'moment';
 import { UsersService } from '../users/users.service';
 import { UserRole } from 'src/users/entities/user.entity';
-import { retry } from 'rxjs';
-import * as request from 'supertest';
+import { Service } from 'src/services/entities/service.entity';
+import { log } from 'console';
+
 
 @Injectable()
 export class AppointmentsService {
@@ -16,6 +17,7 @@ export class AppointmentsService {
     @InjectRepository(AppointmentsEntity)
     private readonly repository: Repository<AppointmentsEntity>,
     private readonly userService: UsersService,
+    @InjectRepository(Service) private readonly serviceRep: Repository<Service>,
   ) {}
 
   async getFreeHoursForDoctorByDate({ date, doctorId }: GetAppointmentByDate) {
@@ -66,12 +68,15 @@ export class AppointmentsService {
       throw new HttpException('Лікаря не знайдено', 400);
     }
     
+    const services = await this.serviceRep.find({where: {id: In(dto.services)}})
+    
     const appointmentPayload = {
       clientId,
       date: dto.date,
       time: dto.time,
       description: dto.description,
       doctorId: doctor.userId,
+      services
     }
     
     return await this.repository.save(appointmentPayload);
@@ -101,7 +106,7 @@ export class AppointmentsService {
       filterObject['clientId'] = In(clientIds)
     }
     
-    const appointments = await this.repository.find({where: filterObject});
+    const appointments = await this.repository.find({where: filterObject, order: {date: 'DESC', time: 'DESC'}});
     
     const mapAppointments = await Promise.all(appointments.map(async (a) => {
       const [client, doctor] = await Promise.all([
@@ -112,7 +117,7 @@ export class AppointmentsService {
       return {...a, client, doctor}
     }));
     
-    return mapAppointments;
+    return this.sortByDate(mapAppointments);
   }
   
   async getToday() {
@@ -124,5 +129,66 @@ export class AppointmentsService {
       }
     })
   }
+  
+  async getVisitsByUser ({role, userId}: any) {
+    const filter = {};
     
+    if(role === UserRole.doctor) {
+      filter['doctorId'] = userId
+    }else {
+      filter['clientId'] = userId; 
+    }
+    
+    const visits = await this.repository.find({
+      where: filter,
+      order: { date: 'DESC', time: 'DESC' },
+    });
+    
+    const mappedVisit = await Promise.all(visits.map(async (v) => {
+      const [client, doctor] = await Promise.all([
+        this.userService.findOne(v.clientId),
+        this.userService.findOne(v.doctorId),
+      ]);
+      
+      return {...v, client, doctor};
+    }))
+    
+    return mappedVisit;
+  }
+    
+  
+  sortByDate(obj) {
+    return obj.sort((a, b) => {
+      const dateA = new Date(a.date + ' ' + a.time);
+      const dateB = new Date(b.date + ' ' + b.time);
+
+      if (dateA > dateB) {
+        return -1; // a should come before b
+      } else if (dateA < dateB) {
+        return 1; // a should come after b
+      } else {
+        return 0; // a and b are equal
+      }
+    });
+  }
+  
+  async update(id: string,dto) {
+    try{
+      const {services: serviceId, ...payload} =dto;
+      const services = await this.serviceRep.find({
+        where: { id: In(serviceId) },
+      });
+  
+    const visit = await this.repository.findOne({where: {appointmentId: id}});
+    visit.services = services;
+    
+    await Promise.all([
+      this.repository.save(visit),
+      this.repository.update({appointmentId: id}, { ...payload })
+      ])
+    }catch(err) {
+      throw err;
+    }
+
+  }
 }
