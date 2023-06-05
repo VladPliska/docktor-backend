@@ -1,12 +1,14 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
+
+export enum ConsultationStatus {
+  pending = 'pending',
+  processed = 'processed'
+}
 @Entity({ name: 'consultation' })
 export class Consultation {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column({ name: 'user_id' })
-  userId: string;
 
   @Column()
   name: string;
@@ -15,5 +17,8 @@ export class Consultation {
   phone: string;
 
   @Column()
-  email: string;
+  description: string;
+
+  @Column({ default: ConsultationStatus.pending})
+  status: string;
 }

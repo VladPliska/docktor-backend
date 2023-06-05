@@ -1,26 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { CreateConsultationDto } from './dto/create-consultation.dto';
 import { UpdateConsultationDto } from './dto/update-consultation.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Consultation, ConsultationStatus } from './entities/consultation.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ConsultationService {
-  create(createConsultationDto: CreateConsultationDto) {
-    return 'This action adds a new consultation';
+  constructor(@InjectRepository(Consultation) private readonly repos: Repository<Consultation>) {}
+  
+  create(dto: any) {
+    // TODO: send email message
+    return this.repos.save(dto);
   }
 
   findAll() {
-    return `This action returns all consultation`;
+    return this.repos.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} consultation`;
-  }
-
-  update(id: number, updateConsultationDto: UpdateConsultationDto) {
-    return `This action updates a #${id} consultation`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} consultation`;
+  update(id: string) {
+    return this.repos.update(id, {status: ConsultationStatus.processed})
   }
 }
