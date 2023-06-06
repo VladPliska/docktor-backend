@@ -1,15 +1,13 @@
-import { HttpException, Inject, Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppointmentsEntity } from './entities/apointment.entity';
-import { Repository, Between, In } from 'typeorm';
+import { Between, In, Repository } from 'typeorm';
 import { CreateAppointmentDto } from './dto/create-apointment.dto';
 import { GetAppointmentByDate } from './dto/get-appointment-by-date';
 import * as moment from 'moment';
 import { UsersService } from '../users/users.service';
 import { UserRole } from 'src/users/entities/user.entity';
 import { Service } from 'src/services/entities/service.entity';
-import { log } from 'console';
-
 
 @Injectable()
 export class AppointmentsService {
@@ -99,7 +97,6 @@ export class AppointmentsService {
     }
     
     if(options.userName) {
-      console.log(options)
       const users = await this.userService.findAll(UserRole.patient, options.userName);
       
       const clientIds = users.map(u => u.userId);
@@ -190,5 +187,125 @@ export class AppointmentsService {
       throw err;
     }
 
+  }
+
+  async getStats() {
+    try {
+      const query = `
+          WITH year_profit AS (
+              SELECT
+                  COUNT(a.appointment_id) AS "yearAppointmentsCount",
+                  SUM(a.price) AS "yearProfit"
+              FROM appointments a
+              WHERE date_trunc('year', to_date(a.date, 'DD-MM-YYYY')) = date_trunc('year', to_date('10-12-2023', 'DD-MM-YYYY'))
+          ),
+               month_profit AS (
+                   SELECT
+                       COUNT(a.appointment_id) AS "monthAppointmentsCount",
+                       SUM(a.price) AS "monthProfit"
+                   FROM appointments a
+                   WHERE date_trunc('month', to_date(a.date, 'DD-MM-YYYY')) = date_trunc('month', to_date('10-06-2023', 'DD-MM-YYYY'))
+               ),
+               clients_count AS (
+                   SELECT
+                       COUNT(*) AS "countOfClient"
+                   FROM users u
+                   WHERE u.role = 'patient'
+               ),
+               top_doctors AS (
+                   SELECT
+                       u.first_name || ' ' || u.last_name AS "doctorFullName",
+                       u.avatar,
+                       SUM(a.price) AS "doctorProfit",
+                       COUNT(a.client_id) AS "processedClient"
+                   FROM appointments a
+                            LEFT JOIN users u ON u."userId" = a.doctor_id::UUID
+          GROUP BY u.first_name, u.last_name, u.avatar
+              LIMIT 3
+              )
+          SELECT
+              "yearAppointmentsCount",
+              "yearProfit",
+              "monthAppointmentsCount",
+              "monthProfit",
+              "countOfClient",
+              ARRAY_AGG(
+                      JSON_BUILD_OBJECT(
+                              'doctorFullName', "doctorFullName",
+                              'avatar', "avatar",
+                              'doctorProfit', "doctorProfit",
+                              'processedClient', "processedClient"
+                          )
+                  ) AS "topDoctors"
+          FROM
+              year_profit,
+              month_profit,
+              clients_count,
+              top_doctors
+          GROUP BY "yearAppointmentsCount",
+                   "yearProfit",
+                   "monthAppointmentsCount",
+                   "monthProfit",
+                   "countOfClient";
+      `;
+
+      const res = await this.repository.query(query);
+
+      const firstDateOfMonth = moment().startOf('month').format('DD-MM-YYYY');
+      const lastDateOfMonth = moment().endOf('month').format('DD-MM-YYYY');
+
+      const appoitmentsForCurrentMonth = await this.repository.query(`
+        select price, date 
+        from appointments a 
+        where to_date(a.date, 'DD-MM-YYYY') between to_date('${firstDateOfMonth}', 'DD-MM-YYYY') and to_date('${lastDateOfMonth}', 'DD-MM-YYYY')
+      `)
+
+      const stats = this.processStats(appoitmentsForCurrentMonth)
+
+      return { ...res[0], stats };
+    }catch(err) {
+      throw err;
+    }
+  }
+
+
+  getDaysInMonth(month, year) {
+    var date = new Date(year, month, 1);
+    var days = [];
+
+    while (date.getMonth() === month) {
+      var day = date.getDate();
+      var formattedDay = ('0' + day).slice(-2); // Pad the day with leading zeros if needed
+      var formattedMonth = ('0' + (month + 1)).slice(-2); // Add 1 to month as it is zero-based
+      var formattedYear = date.getFullYear();
+      var formattedDate = formattedDay + '-' + formattedMonth + '-' + formattedYear;
+      days.push(formattedDate);
+      date.setDate(day + 1);
+    }
+
+    return days;
+  }
+
+  getCurrentMonthDates() {
+    var currentDate = new Date();
+    var currentMonth = currentDate.getMonth();
+    var currentYear = currentDate.getFullYear();
+
+    return this.getDaysInMonth(currentMonth, currentYear);
+  }
+
+  processStats(appointments: any) {
+    const dates = this.getCurrentMonthDates()
+
+    const sum = dates.map(d => {
+      const ap = appointments.filter((v) => v.date === d);
+
+      if(!ap.length) {
+        return 0;
+      }else{
+        return ap.reduce((prev, curr) => prev + (curr.price ?? 0), 0)
+      }
+    })
+    return {dates, sum}
   }
 }

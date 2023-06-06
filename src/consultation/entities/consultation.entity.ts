@@ -16,7 +16,7 @@ export class Consultation {
   @Column()
   phone: string;
 
-  @Column()
+  @Column({nullable: true})
   description: string;
 
   @Column({ default: ConsultationStatus.pending})

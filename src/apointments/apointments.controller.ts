@@ -18,7 +18,12 @@ export class AppointmentsController {
   ) {
     return this.appointmentsService.getFreeHoursForDoctorByDate(dto);
   }
-  
+
+  @Get('/stats')
+  getStats() {
+    return this.appointmentsService.getStats();
+  }
+
   @Get()
   async find(@Query() dto: any){
     return this.appointmentsService.find(dto)

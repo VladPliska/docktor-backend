@@ -1,9 +1,9 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateUserDto } from './create-user.dto';
-import { IsDefined, IsString, Length, MinLength } from 'class-validator';
+import { IsDefined, IsPhoneNumber, IsString, Length, MinLength } from 'class-validator';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
-  verification: boolean;
+  verification?: boolean;
   @IsString()
   @IsDefined({ message: 'Імя обовзякове поле' })
   @Length(3, 20)
@@ -13,4 +13,10 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsDefined({ message: 'Прізвище обовзякове поле' })
   @Length(3, 20)
   lastName?: string;
+
+  @IsString()
+  avatar?: string;
+
+  @IsPhoneNumber('UA', {message: 'Невірий формат номеру телефона'})
+  phoneNumber?: string
 }

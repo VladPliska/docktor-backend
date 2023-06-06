@@ -9,4 +9,7 @@ export class CreateServiceDto {
 
   @IsNumber()
   price: number;
+
+  @IsString()
+  image: string;
 }

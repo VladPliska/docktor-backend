@@ -13,4 +13,7 @@ export class Service {
 
   @Column()
   description: string;
+
+  @Column({ nullable: true })
+  image: string;
 }

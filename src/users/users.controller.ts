@@ -68,7 +68,6 @@ export class UsersController {
   findAll(@Query() { role, search }: GetUsersDto) {
     return this.usersService.findAll(role, search);
   }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
