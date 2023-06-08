@@ -217,12 +217,10 @@ export class UsersService {
         price,
       };
 
-      console.log(data);
       await this.doctorDetailsRepository.update(doctor.doctorDetails, details);
 
       await this.userRepository.update({ userId }, { ...data });
     } catch (err) {
-      console.log(err);
       throw err;
     }
   }
@@ -236,5 +234,16 @@ export class UsersService {
       select: ['userId','email', 'firstName', 'lastName'],
       where: { phoneNumber: phone, status: Status.active, role: UserRole.patient },
     });
+  }
+
+  async sendVerificationCode(email){
+    try {
+    const code = Math.floor(Math.random() * 10000);
+
+    await this.mailService.sendVerificationCode({email, code});
+    await this.userRepository.update({email}, {verificationCode: code});
+    }catch (err) {
+      throw err;
+    }
   }
 }

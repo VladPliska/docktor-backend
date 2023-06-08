@@ -23,11 +23,23 @@ export class MailService {
       to: 'doctorblue3412@gmail.com', // admin mail
       from: `"Client" <${data.sender}>`,
       subject: 'Питання відвовіді',
-      template: '/consultation.hbs',
+      template: './consultation.hbs',
       context: {
         sender: data.sender,
         name: data.name,
         description: data.description,
+      },
+    });
+  }
+
+  async sendVerificationCode(data: any) {
+    await this.mailerService.sendMail({
+      to: data.email, // admin mail
+      from: `"Health Clinic"`,
+      subject: 'Питання відвовіді',
+      template: './verification.hbs',
+      context: {
+        code: data.code,
       },
     });
   }

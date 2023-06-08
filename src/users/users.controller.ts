@@ -92,5 +92,10 @@ export class UsersController {
   remove(@Param('userId') userId: string) {
     return this.usersService.deactivateUser(userId);
   }
+
+  @Post('send-verification-code')
+  async sendVerificationCode(@Body() dto: any){
+    return await this.usersService.sendVerificationCode(dto.email)
+  }
 }
 
