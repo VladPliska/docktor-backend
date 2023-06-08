@@ -81,6 +81,9 @@ export class AppointmentsService {
   }
   
   async find(options: any) {
+    try {
+
+
     const filterObject = {};
     
     if(options.today) {
@@ -115,6 +118,10 @@ export class AppointmentsService {
     }));
     
     return this.sortByDate(mapAppointments);
+    }catch (err) {
+    console.log(err);
+    throw err;
+  }
   }
   
   async getToday() {

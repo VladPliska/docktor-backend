@@ -36,7 +36,7 @@ export class MailService {
     await this.mailerService.sendMail({
       to: data.email, // admin mail
       from: `"Health Clinic"`,
-      subject: 'Питання відвовіді',
+      subject: 'Відновлення паролю',
       template: './verification.hbs',
       context: {
         code: data.code,

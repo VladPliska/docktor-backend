@@ -38,12 +38,11 @@ export class UsersService {
       password: hashPassword,
     });
 
-    // TODO  problem with compilation
-    // await this.mailService.sendUserConfirmation({
-    //   email: dto.email,
-    //   password: generatedPassword,
-    //   name: dto.firstName + ' ' + dto.lastName,
-    // });
+    await this.mailService.sendUserConfirmation({
+      email: dto.email,
+      password: generatedPassword,
+      name: dto.firstName + ' ' + dto.lastName,
+    });
     return await this.userRepository.save(userObj);;
   }
 
@@ -79,6 +78,10 @@ export class UsersService {
 
   async findOne(id: string) {
     const user = await this.userRepository.findOne({ where: { userId: id }, relations: ['doctorDetails'] });
+
+    if(!user) {
+      throw new NotFoundError('User not found')
+    }
 
     const {
       lastName,
@@ -176,12 +179,11 @@ export class UsersService {
       },
     });
 
-    // TODO  problem with compilation
-    // await this.mailService.sendUserConfirmation({
-    //   email: dto.email,
-    //   password: generatedPassword,
-    //   name: dto.firstName + ' ' + dto.lastName,
-    // });
+    await this.mailService.sendUserConfirmation({
+      email: dto.email,
+      password: generatedPassword,
+      name: dto.firstName + ' ' + dto.lastName,
+    });
 
     await this.userRepository.save(userObj);
   }
