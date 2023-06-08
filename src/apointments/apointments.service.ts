@@ -29,7 +29,7 @@ export class AppointmentsService {
     const appointments = await this.repository
       .createQueryBuilder('a')
       .where('a.doctorId = :doctorId', { doctorId })
-      .andWhere(`DATE_TRUNC('day', CAST(a.date AS DATE)) = DATE_TRUNC('day', CAST(:date AS DATE))`, { date })
+      .andWhere(`DATE_TRUNC('day', CAST(a.date AS DATE)) = DATE_TRUNC('day', CAST(to_date(:date,'DD-MM-YYYY') AS DATE))`, { date })
       .getMany();
 
     // TODO check timezone
