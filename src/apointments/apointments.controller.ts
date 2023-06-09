@@ -16,7 +16,7 @@ export class AppointmentsController {
   async getFreeHours(
     @Query() dto: GetAppointmentByDate,
   ) {
-    return this.appointmentsService.getFreeHoursForDoctorByDate(dto);
+    return await this.appointmentsService.getFreeHoursForDoctorByDate(dto);
   }
 
   @Get('/stats')

@@ -19,6 +19,7 @@ export class AppointmentsService {
   ) {}
 
   async getFreeHoursForDoctorByDate({ date, doctorId }: GetAppointmentByDate) {
+    try {
     const hours = [];
 
     for (let i = 5; i <= 23; i++) {
@@ -26,20 +27,24 @@ export class AppointmentsService {
       hours.push(hour);
     }
 
+
     const appointments = await this.repository
       .createQueryBuilder('a')
       .where('a.doctorId = :doctorId', { doctorId })
-      .andWhere(`DATE_TRUNC('day', CAST(a.date AS DATE)) = DATE_TRUNC('day', CAST(to_date(:date,'DD-MM-YYYY') AS DATE))`, { date })
+      .andWhere(`DATE_TRUNC('day', CAST(to_date(a.date,'DD-MM-YYYY') AS DATE)) = DATE_TRUNC('day', CAST(to_date(:date,'DD-MM-YYYY') AS DATE))`, { date })
       .getMany();
 
     // TODO check timezone
     const busyHours = appointments.map(a => {
-      const hour = moment(a.date).hours();
-      return `${hour}:00`
+
+      return `${a.time}`
     })
-    
+      console.log(hours, busyHours);
       
     return hours.filter((value) => !busyHours.includes(value));
+    }catch (err) {
+      throw err
+    }
   }
 
   async createAppointment(dto: CreateAppointmentDto) {
