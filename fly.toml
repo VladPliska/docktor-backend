@@ -6,6 +6,18 @@
 app = "doctor-backend"
 primary_region = "waw"
 
+[env]
+CLIENT_ID=642992363532-5hgqmekac8vnibr12i2sqjmevfbddpe7.apps.googleusercontent.com
+CLIENT_SECRET=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
+REFRESH_TOKEN=1//04KLb8sJtp9kbCgYIARAAGAQSNwF-L9IrtDC4yUYnC4tt4aQKBwfWSnCyI7rhdhtyVsoMm4aLwNv58QJUqI8M8LfRt4NuBMq13Qs
+REDIRECT_URI=https://developers.google.com/oauthplayground
+DB_NAME=doctor-backend-db.flycast
+DB_USER=postgres
+DB_PASSWORD=05XwPY2uxw76l6H
+DB_PORT=5432
+DB_HOST=doctor-backend-db.internal
+APP_PORT=3000
+
 [http_service]
   internal_port = 3000
   force_https = true
