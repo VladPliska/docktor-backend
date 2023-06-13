@@ -11,6 +11,7 @@ import { CryptoModule } from './crypto/crypto.module';
 import { MailModule } from './mail/mail.module';
 import { ImageModule } from './image/image.module';
 import { ConfigModule } from '@nestjs/config';
+import * as process from 'process';
 
 @Module({
   imports: [
@@ -20,11 +21,11 @@ import { ConfigModule } from '@nestjs/config';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'doctor',
+      host: process.env.DB_HOST,
+      port: parseInt(process.env.DB_PORT),
+      username: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
       autoLoadEntities: true,
       entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: true,
