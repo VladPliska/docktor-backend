@@ -1,42 +1,28 @@
-# syntax = docker/dockerfile:1
+FROM node:16-alpine as builder
 
-# Adjust NODE_VERSION as desired
-ARG NODE_VERSION=18.16.0
-FROM node:${NODE_VERSION}-slim as base
+ENV NODE_ENV build
 
-LABEL fly_launch_runtime="NestJS"
+USER node
+WORKDIR /home/node
 
-# NestJS app lives here
-WORKDIR /app
+COPY package*.json ./
+RUN npm ci
 
-# Set production environment
-ENV NODE_ENV=production
+COPY --chown=node:node . .
+RUN npm run build \
+    && npm prune --production
 
+# ---
 
-# Throw-away build stage to reduce size of final image
-FROM base as build
+FROM node:16-alpine
 
-# Install packages needed to build node modules
-RUN apt-get update -qq && \
-    apt-get install -y python-is-python3 pkg-config build-essential 
+ENV NODE_ENV production
 
-# Install node modules
-COPY --link package-lock.json package.json ./
-RUN npm ci --include=dev
+USER node
+WORKDIR /home/node
 
-# Copy application code
-COPY --link . .
+COPY --from=builder --chown=node:node /home/node/package*.json ./
+COPY --from=builder --chown=node:node /home/node/node_modules/ ./node_modules/
+COPY --from=builder --chown=node:node /home/node/dist/ ./dist/
 
-# Build application
-RUN npm run build
-
-
-# Final stage for app image
-FROM base
-
-# Copy built application
-COPY --from=build /app /app
-
-# Start the server by default, this can be overwritten at runtime
-EXPOSE 3000
-CMD [ "npm", "run", "start" ]
+CMD ["node", "dist/main.js"]
