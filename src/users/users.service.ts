@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  HttpException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,7 +7,7 @@ import { Status, User, UserRole } from './entities/user.entity';
 import { CryptoService } from '../crypto/crypto.service';
 import { MailService } from '../mail/mail.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import { NotFoundError, find } from 'rxjs';
+import { NotFoundError } from 'rxjs';
 import { CreateDoctor } from './dto/add-doctor-details.dto';
 import { DoctorDetailsEntity } from './entities/doctor-details.entity';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
@@ -244,6 +239,26 @@ export class UsersService {
 
     await this.mailService.sendVerificationCode({email, code});
     await this.userRepository.update({email}, {verificationCode: code});
+    }catch (err) {
+      throw err;
+    }
+  }
+
+  async verifyUser(userId, dto) {
+    try {
+      const user = await this.userRepository.findOne({ where: {userId} });
+
+      if(!user) {
+        throw new NotFoundException('Користувач не знайдений')
+      }
+
+      if(user.verificationCode !== parseInt(dto.code)) {
+        throw new BadRequestException('Верифікаційний код невірний')
+      }
+
+      user.password = await this.cryptoService.createHash(dto.password);
+      user.verification = true;
+      await this.userRepository.save(user);
     }catch (err) {
       throw err;
     }

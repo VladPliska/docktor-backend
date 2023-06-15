@@ -97,5 +97,13 @@ export class UsersController {
   async sendVerificationCode(@Body() dto: any){
     return await this.usersService.sendVerificationCode(dto.email)
   }
+
+  @Post('/verify/:userId')
+  async verifyUser(
+    @Param('userId') userId: any,
+    @Body() dto: any
+  ){
+    return await this.usersService.verifyUser(userId, dto)
+  }
 }
 
