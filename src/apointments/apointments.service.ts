@@ -8,6 +8,7 @@ import * as moment from 'moment';
 import { UsersService } from '../users/users.service';
 import { UserRole } from 'src/users/entities/user.entity';
 import { Service } from 'src/services/entities/service.entity';
+import { FeedbacksService } from '../feedbacks/feedbacks.service';
 
 @Injectable()
 export class AppointmentsService {
@@ -16,6 +17,7 @@ export class AppointmentsService {
     private readonly repository: Repository<AppointmentsEntity>,
     private readonly userService: UsersService,
     @InjectRepository(Service) private readonly serviceRep: Repository<Service>,
+    private readonly feedbackService: FeedbacksService
   ) {}
 
   async getFreeHoursForDoctorByDate({ date, doctorId }: GetAppointmentByDate) {
@@ -87,8 +89,6 @@ export class AppointmentsService {
   
   async find(options: any) {
     try {
-
-
     const filterObject = {};
     
     if(options.today) {
@@ -154,12 +154,13 @@ export class AppointmentsService {
     });
     
     const mappedVisit = await Promise.all(visits.map(async (v) => {
-      const [client, doctor] = await Promise.all([
+      const [client, doctor, feedback] = await Promise.all([
         this.userService.findOne(v.clientId),
         this.userService.findOne(v.doctorId),
+        this.feedbackService.getByVisit(v.appointmentId)
       ]);
       
-      return {...v, client, doctor};
+      return {...v, client, doctor, feedback};
     }))
     
     return mappedVisit;

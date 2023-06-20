@@ -11,6 +11,7 @@ import { CryptoModule } from './crypto/crypto.module';
 import { MailModule } from './mail/mail.module';
 import { ImageModule } from './image/image.module';
 import { ConfigModule } from '@nestjs/config';
+import { FeedbacksModule } from './feedbacks/feedbacks.module';
 import * as process from 'process';
 
 @Module({
@@ -39,6 +40,7 @@ import * as process from 'process';
     CryptoModule,
     MailModule,
     ImageModule,
+    FeedbacksModule,
   ],
   controllers: [AppController],
   providers: [AppService],
