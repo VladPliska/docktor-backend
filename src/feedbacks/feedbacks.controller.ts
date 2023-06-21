@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { FeedbacksService } from './feedbacks.service';
 
 @Controller('feedbacks')
@@ -18,5 +18,10 @@ export class FeedbacksController {
   @Post()
   async create(@Body() dto) {
     return this.feedbacksService.create(dto)
+  }
+
+  @Delete('/:id')
+  async delete(@Param('id') id: any){
+    return this.feedbacksService.delete(id)
   }
 }

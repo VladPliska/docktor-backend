@@ -4,6 +4,7 @@ import { FeedbackEntity } from './entities/feedback.entity';
 import { Repository } from 'typeorm';
 import { AppointmentsEntity } from '../apointments/entities/apointment.entity';
 import { User } from '../users/entities/user.entity';
+import * as moment from 'moment';
 
 @Injectable()
 export class FeedbacksService {
@@ -17,11 +18,12 @@ export class FeedbacksService {
 
     const mapped = await Promise.all(feedbacks.map(async f => {
       const client = await this.userRepository.findOne({where: {userId: f.userId}})
-
-      return {client, ...f}
+      const {createdAt, ...data} = f
+      const formattedData = moment(createdAt).format('DD-MM-YYYY hh:mm');
+      return {client, createdAt: formattedData, ...data}
     }))
 
-    return mapped
+    return mapped;
   }
 
   findOne(id) {
@@ -41,5 +43,9 @@ export class FeedbacksService {
 
   async getByVisit(visitId) {
     return this.repos.findOne({where: { appointmentId: visitId}})
+  }
+
+  async delete(id) {
+    await this.repos.delete(id)
   }
 }
